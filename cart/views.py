@@ -42,3 +42,23 @@ def remove_from_cart(request):
     CartItem.objects.filter(id=item_id).delete()
 
     return Response({"message": "Item removed"})
+
+@api_view(["POST"])
+def update_cart_item(request):
+    item_id = request.data.get("item_id")
+    quantity = int(request.data.get("quantity"))
+
+    try:
+        item = CartItem.objects.get(id=item_id)
+    except CartItem.DoesNotExist:
+        return Response({"error": "Item not found"}, status=404)
+
+    if quantity <= 0:
+        item.delete()
+        return Response({"message": "Item removed"})
+
+    item.quantity = quantity
+    item.save()
+
+    return Response({"message": "Quantity updated"})
+
